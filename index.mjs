@@ -17,6 +17,11 @@ const port = 4000;
 // });
 
 // Get survey results
+app.get("/", async (req, res) => {
+    res.send("Hi!");
+});
+
+// Get survey results
 app.get("/survey/results", async (req, res) => {
     try {
         const results = await surveyService.getSurveyResults();
