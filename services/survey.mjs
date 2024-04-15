@@ -1,26 +1,37 @@
-import { MongoClient } from "mongodb";
+import { omit } from "underscore";
+import { ObjectId } from "mongodb";
 
 export class Survey {
     collectionName = "survey";
 
-    constructor() {
-        const mongoClient = new MongoClient(process.env.MONGODB_URI);
-        mongoClient.connect().then((client) => {
-            this.database = client.db(process.env.MONGODB_DATABASE);
-            this.collection = this.database.collection(this.collectionName);
-        });
+    constructor(database) {
+        this.collection = database.collection(this.collectionName);
     }
 
     getSurveyResults() {
         return this.collection.find().toArray();
     }
 
+    getSurveyResult(form) {
+        return this.collection.findOne({}, omit(form, "updated"));
+    }
+
     async addSurveyResult(form) {
         return this.collection.insertOne({
             ...form,
             created: new Date(),
+            updated: new Date(),
         });
     }
-}
 
-export default new Survey();
+    async editSurveyResult(form) {
+        return this.collection.replaceOne(
+            { _id: new ObjectId(form._id) },
+            omit({ ...form, updated: new Date() }, "_id")
+        );
+    }
+
+    async removeSurveyResult(id) {
+        return this.collection.deleteOne({ _id: new ObjectId(id) });
+    }
+}
