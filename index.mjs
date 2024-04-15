@@ -127,7 +127,9 @@ init().then(({ surveyService, usersService }) => {
     });
 
     app.post("/logout", (req, res) => {
-        res.clearCookie("accessToken");
+        if (req.cookies?.accessToken) {
+            res.clearCookie("accessToken");
+        }
         res.end();
     });
 
